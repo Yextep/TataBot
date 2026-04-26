@@ -1,61 +1,94 @@
-# Bot de Aprendizaje con Preguntas y Respuestas en Python
+# Bot Asistente TataBot 💜 
 
-Este bot es capaz de responder preguntas basadas en una base de datos predefinida y también puede **aprender** nuevas preguntas y respuestas.
+TataBot es una asistente de Telegram basada solo en OpenAI, pensada para ser cálida, bonita, ordenada y práctica. Esta V2 corrige el problema de codificación `ascii codec can't encode character` y endurece el manejo del TXT de claves.
 
 # Estructura del codigo:
 
 <img align="right" height="400" width="400" alt="GIF" src="https://github.com/Yextep/Learning-Bot/assets/114537444/f4696460-3cbf-4c36-921d-a42d815c469d"/>
 
-**Conexión a la base de datos:** En esta sección, establecemos una conexión a la base de datos SQLite y creamos una tabla para almacenar las preguntas y respuestas.
+```text
 
-**Función get_answer:** Esta función recibe una pregunta como entrada y busca la mejor coincidencia en la base de datos. Si encuentra una coincidencia, devuelve la respuesta correspondiente. De lo contrario, devuelve None.
-
-**Función learn:** Esta función permite al bot aprender nuevas preguntas y respuestas. El usuario ingresa una respuesta, y la función la inserta en la base de datos.
-
-**Función main:** Esta función es el punto de entrada del programa. Muestra un mensaje de bienvenida y luego entra en un bucle donde espera la entrada del usuario. Dependiendo de la entrada del usuario, el programa puede aprender nuevas preguntas y respuestas, buscar una respuesta en la base de datos o finalizar la ejecución.
-
-# Excel
-
-Este Excel automatiza el aprendizaje del bot, en el excel debes tener dos columnas, una que diga "Pregunta" y la otra "Respuesta" puedes buscar una cantidad inmensa de preguntas y respuestas para digitar en esas dos columnas, una vez ingresado esos datos lo DEBES guardar como **"datos.xlsx"**
-
-# Excel en la misma carpeta del bot
-
-Si tienes el archivo de Excel en la misma carpeta donde está ejecutando el bot, solo debes indicar que sí quieres cargar un Excel pero que no está en una ruta especifica, automaticamente el bot asumirá que el excel estará en la ruta actual del bot y se cargarán dichos datos.
-
-Automaticamente la información guardada en el excel se pasará a la base de datos del bot, y si el bot aprende nuevas respuestas, al momento de ejecutar el comando "salir". Se guardará toda la nueva información que aprendió el bot tanto en la base de datos del bot como en el archivo de Excel.
-
-# Excel en una ruta Especifica
-
-Si tienes el archivo de Excel en una ruta específica, debes indicar que sí quieres cargar un Excel de una ruta especifica y luego indicas en qué ruta está ubicado. Ejemplo:
-
-```bash
-/home/user/Desktop/datos.xlsx
+tatabot_final_v2/
+├─ configuracion.py      # Aquí pones token, ruta del TXT y preferencias                                                ├─ tata_bot.py           # Bot completo
+├─ requirements.txt      # Dependencias
+├─ apis-openai.txt       # Tus claves válidas, una por línea
+├─ assets/
+│  └─ tata_start.png    # Portada cuadrada de /start
+└─ data/                 # Memoria, conversación y estado de claves
 ```
+                                                                      
+## Uso rápido
 
-Automaticamente la información guardada en el excel se pasará a la base de datos del bot, y si el bot aprende nuevas respuestas, al momento de ejecutar el comando "salir". Se guardará toda la nueva información que aprendió el bot tanto en la base de datos del bot como en el archivo de Excel.
-
-
-## Instalación
-
-Clonamos el repositorio
 ```bash
-git clone https://github.com/Yextep/Learning-Bot
-```
-Accedemos a la carpeta
-```bash
-cd Learning-Bot
-```
-Instalamos requerimientos
-```bash
+cd tatabot_final_v2
 pip install -r requirements.txt
-```
-Actualizamos la biblioteca xlsxwriter a la última versión compatible con Pandas
-```bash
-pip install --upgrade xlsxwriter
-```
-Ejecutamos el bot
-```bash
-python3 tata.py
+nano configuracion.py
+nano apis-openai.txt
+python3 tata_bot.py
 ```
 
+En `configuracion.py` cambia:                                          
+```python
+TELEGRAM_BOT_TOKEN = "TU_TOKEN_DE_BOTFATHER"
+OPENAI_TXT = CARPETA_PROYECTO / "apis-openai.txt"
+```
 
+En `apis-openai.txt` pega tus claves válidas de OpenAI. Esta versión extrae solo el token `sk-...`, así que tolera comentarios o etiquetas, por ejemplo:
+
+```text
+sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+OPENAI_API_KEY=sk-proj-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+sk-proj-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz # válida
+```
+
+Aun así, lo más limpio es dejar una clave por línea, sin texto adicional.
+
+## Comandos
+
+```text
+/start       Menú bonito con imagen y botones
+/ayuda       Guía de uso
+/chat        Conversación normal
+/buscar      Búsqueda web con OpenAI cuando esté disponible
+/imagen      Genera imágenes priorizando mejor calidad/modelo
+/voz         Convierte texto en audio con voz suave/femenina
+/recordar    Guarda un recuerdo del chat
+/memoria     Muestra recuerdos
+/olvidar     Borra memoria y contexto del chat
+/estado      Estado de claves, concurrencia y modelos
+/errores     Últimos errores técnicos de OpenAI
+/reset_claves Reinicia cooldowns locales de claves
+```
+
+También acepta mensajes normales, fotos, PDFs, documentos, audios y notas de voz.
+
+## Edición de imágenes
+
+Envía una foto con caption:
+
+```text
+editar: cambia el fondo a una playa elegante al atardecer
+```
+
+## Mejoras incluidas en esta V2
+
+- Corrige el error `ascii codec can't encode character` al enviar texto con tildes, ñ o emojis.
+- El cuerpo JSON hacia OpenAI se envía explícitamente como UTF-8.
+- El TXT de claves ahora se limpia: solo se usa el token `sk-...`, no la línea completa.
+- Si una key trae caracteres raros o texto pegado, se marca localmente como mal formada en vez de tumbar el bot.
+- `/start` cachea la portada por hash; si cambias `assets/tata_start.png`, Telegram recibirá la nueva imagen.
+- Respuestas de audio transcrito ya no mezclan HTML con texto generado por IA, evitando errores de parseo en Telegram.
+- `/start` usa una portada cuadrada 1080x1080 para no verse deformada.
+- El envío de imágenes comprime una vista previa para Telegram y, si está activado, manda el original como documento.
+- Si Telegram falla al subir una foto por timeout, Tata intenta una imagen más ligera y luego documento.
+- Mensaje temporal de “procesando” con tono cariñoso; se elimina automáticamente cuando llega la respuesta.
+- Concurrencia limitada a 5 solicitudes pesadas simultáneas.
+- Rotación de claves OpenAI con cooldown para claves inválidas, sin cuota o con errores temporales.
+- Imágenes con fallback por modelo/calidad/tamaño/key: intenta primero `gpt-image-1.5` y baja si no se puede.
+- Voz configurada con timbres suaves y `instructions` para pedir tono femenino/cálido cuando el modelo lo permite.
+
+## Notas importantes
+
+- El bot guarda estado local en `data/`.
+- Si cambias tus claves o quieres olvidar cooldowns, usa `/reset_claves`.
+- Si tu TXT tenía comentarios con tildes como `válida`, esta versión ya no intentará enviar esa palabra dentro del header de autorización.
